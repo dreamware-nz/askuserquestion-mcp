@@ -1,8 +1,8 @@
 # Binaries
 /bin/
 /dist/
-askuserquestion-mcp
-askuserquestion-mcp.exe
+/askuserquestion-mcp
+/askuserquestion-mcp.exe
 
 # Go artifacts
 *.test

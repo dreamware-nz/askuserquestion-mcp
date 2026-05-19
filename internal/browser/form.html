@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AskUserQuestion</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --fg: #1c1f23;
+    --muted: #6b727a;
+    --accent: #2451d4;
+    --border: #d8dce2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15181c;
+      --card: #1d2126;
+      --fg: #e7eaee;
+      --muted: #9aa3ad;
+      --accent: #6ea3ff;
+      --border: #2e333a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.5rem 1rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main {
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .q {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .q .header {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .q .question {
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .opt:hover { background: rgba(127,127,127,0.08); }
+  .opt input { margin-top: 0.2rem; }
+  .opt .label { font-weight: 500; }
+  .opt .desc  { display: block; color: var(--muted); font-size: 0.9rem; }
+  .other input[type="text"] {
+    width: 100%;
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg);
+    font: inherit;
+  }
+  footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  button {
+    font: inherit;
+    padding: 0.55rem 1.2rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg);
+    cursor: pointer;
+  }
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Agent is asking</h1>
+  <form id="auq">
+    {{range $qi, $q := .Questions}}
+    <section class="q" data-qi="{{$qi}}" data-multi="{{$q.MultiSelect}}">
+      <div class="header">{{$q.Header}}</div>
+      <div class="question">{{$q.Question}}</div>
+      {{range $oi, $o := $q.Options}}
+      <label class="opt">
+        <input
+          type="{{if $q.MultiSelect}}checkbox{{else}}radio{{end}}"
+          name="q{{$qi}}"
+          value="{{$o.Label}}">
+        <span>
+          <span class="label">{{$o.Label}}</span>
+          {{if $o.Description}}<span class="desc">{{$o.Description}}</span>{{end}}
+        </span>
+      </label>
+      {{end}}
+      <label class="opt other">
+        <input type="{{if $q.MultiSelect}}checkbox{{else}}radio{{end}}"
+          name="q{{$qi}}" value="__other__">
+        <span style="flex:1">
+          <span class="label">Other</span>
+          <input type="text" data-qi="{{$qi}}" placeholder="Type a custom answer…">
+        </span>
+      </label>
+    </section>
+    {{end}}
+    <footer>
+      <button type="submit" class="primary" id="submit">Submit</button>
+    </footer>
+  </form>
+</main>
+<script>
+(function () {
+  const form = document.getElementById("auq");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const sections = form.querySelectorAll("section.q");
+    const payload = [];
+    for (const sec of sections) {
+      const multi = sec.dataset.multi === "true";
+      const qi = sec.dataset.qi;
+      const inputs = sec.querySelectorAll('input[name="q' + qi + '"]:checked');
+      const selected = [];
+      let other = "";
+      for (const inp of inputs) {
+        if (inp.value === "__other__") {
+          const txt = sec.querySelector('input[type="text"][data-qi="' + qi + '"]');
+          if (txt && txt.value.trim()) other = txt.value.trim();
+        } else {
+          selected.push(inp.value);
+        }
+      }
+      // Other beats Selected: if the user picked Other and typed
+      // something, send only the free text.
+      if (other) {
+        payload.push({ selected: [], other: other });
+      } else {
+        payload.push({ selected: selected, other: "" });
+      }
+      // Multi tolerates zero picks; single requires one.
+      if (!multi && selected.length === 0 && !other) {
+        alert("Please answer question " + (Number(qi) + 1));
+        return;
+      }
+    }
+    const fd = new FormData();
+    fd.append("payload", JSON.stringify(payload));
+    fetch("/submit", { method: "POST", body: fd }).then(function (r) {
+      return r.text();
+    }).then(function (html) {
+      document.documentElement.innerHTML = html;
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -155,10 +155,14 @@ func renderForm(w http.ResponseWriter, req askuserquestion.Request) {
 // parseSubmission turns a posted form into the per-question Answer slice.
 // The form posts a single JSON document under the "payload" field; this
 // keeps the parsing path explicit and avoids per-field name juggling.
+//
+// The browser-side form uses FormData(), which serialises as
+// multipart/form-data. FormValue auto-parses both multipart and
+// application/x-www-form-urlencoded bodies when r.Form is still nil, so
+// we deliberately avoid calling ParseForm here — that helper only
+// handles url-encoded bodies and, once it has populated r.Form, blocks
+// FormValue from falling back to multipart parsing.
 func parseSubmission(httpReq *http.Request, req askuserquestion.Request) ([]askuserquestion.Answer, error) {
-	if err := httpReq.ParseForm(); err != nil {
-		return nil, fmt.Errorf("parse form: %w", err)
-	}
 	raw := httpReq.FormValue("payload")
 	if strings.TrimSpace(raw) == "" {
 		return nil, errors.New("empty payload")

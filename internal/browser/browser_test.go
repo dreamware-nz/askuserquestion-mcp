@@ -1,9 +1,11 @@
 package browser
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -89,6 +91,29 @@ func TestResolverContextCancel(t *testing.T) {
 	}
 }
 
+// TestResolverAcceptsMultipart guards against a regression where the
+// /submit handler called ParseForm first, which only parses
+// url-encoded bodies and left FormValue unable to read the multipart
+// payload the real browser actually sends via FormData().
+func TestResolverAcceptsMultipart(t *testing.T) {
+	t.Parallel()
+	r := New()
+	r.OpenURL = multipartPostBack(t, []map[string]any{
+		{"selected": []string{"OAuth"}, "other": ""},
+		{"selected": []string{"Go"}, "other": ""},
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	answers, err := r.Ask(ctx, sampleReq())
+	if err != nil {
+		t.Fatalf("Ask err: %v", err)
+	}
+	if len(answers) != 2 || answers[0].Selected[0] != "OAuth" || answers[1].Selected[0] != "Go" {
+		t.Fatalf("unexpected answers: %+v", answers)
+	}
+}
+
 func TestResolverFormRenders(t *testing.T) {
 	t.Parallel()
 	r := New()
@@ -140,6 +165,44 @@ func postBack(t *testing.T, payload []map[string]any) func(string) error {
 			if err != nil {
 				t.Logf("synthetic submit failed: %v", err)
 			}
+		}()
+		return nil
+	}
+}
+
+// multipartPostBack mirrors postBack but submits via multipart/form-data
+// the same way the browser-side FormData() does, so we can pin the
+// handler's multipart parsing behaviour.
+func multipartPostBack(t *testing.T, payload []map[string]any) func(string) error {
+	t.Helper()
+	body, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return func(u string) error {
+		go func() {
+			var buf bytes.Buffer
+			mw := multipart.NewWriter(&buf)
+			if err := mw.WriteField("payload", string(body)); err != nil {
+				t.Logf("write field: %v", err)
+				return
+			}
+			if err := mw.Close(); err != nil {
+				t.Logf("close mw: %v", err)
+				return
+			}
+			req, err := http.NewRequest(http.MethodPost, u+"submit", &buf)
+			if err != nil {
+				t.Logf("new request: %v", err)
+				return
+			}
+			req.Header.Set("Content-Type", mw.FormDataContentType())
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Logf("multipart submit failed: %v", err)
+				return
+			}
+			resp.Body.Close()
 		}()
 		return nil
 	}

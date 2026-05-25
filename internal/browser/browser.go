@@ -198,7 +198,16 @@ h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
 p  { color: #555; }
 </style>
 <h1>Thanks — answer recorded.</h1>
-<p>You can close this tab.</p>
+<p id="msg">Closing this tab…</p>
+<script>
+setTimeout(function () {
+  window.close();
+  setTimeout(function () {
+    var p = document.getElementById("msg");
+    if (p) p.textContent = "You can close this tab.";
+  }, 400);
+}, 100);
+</script>
 `
 
 // openBrowser launches the system default browser for the given URL.

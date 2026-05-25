@@ -203,18 +203,8 @@ button {
 button:hover { background: #ececec; }
 </style>
 <h1>Thanks — answer recorded.</h1>
-<p id="msg">Closing this tab…</p>
-<button id="closeBtn" type="button">Close tab</button>
-<script>
-document.getElementById("closeBtn").onclick = function () { window.close(); };
-setTimeout(function () {
-  window.close();
-  setTimeout(function () {
-    var p = document.getElementById("msg");
-    if (p) p.textContent = "You can close this tab.";
-  }, 400);
-}, 100);
-</script>
+<p>You can close this tab.</p>
+<button type="button" onclick="window.close()">Close tab</button>
 `
 
 // openBrowser launches the system default browser for the given URL.

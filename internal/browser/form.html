@@ -184,6 +184,9 @@
       return r.text();
     }).then(function (html) {
       document.documentElement.innerHTML = html;
+      // Still inside the submit click's transient activation window
+      // (~5s; localhost roundtrip is ms), so window.close() is allowed.
+      window.close();
     });
   });
 })();

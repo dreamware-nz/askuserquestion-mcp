@@ -50,7 +50,7 @@ func handler(resolver Resolver) mcp.ToolHandlerFor[askuserquestion.Params, any] 
 		if err := askuserquestion.Validate(in); err != nil {
 			return errorResult(err.Error()), nil, nil
 		}
-		req := askuserquestion.Request{Questions: in.Questions}
+		req := askuserquestion.Request{Questions: in.Questions, Context: in.Context}
 		answers, err := resolver.Ask(ctx, req)
 		if err != nil {
 			if errors.Is(err, askuserquestion.ErrResolverCancelled) {

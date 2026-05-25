@@ -6,6 +6,8 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dreamware-nz/askuserquestion-go v0.1.1 h1:uFv02TCXMtrozFwZRO8aGNGJQK7sYccZe6NwOiSc950=
 github.com/dreamware-nz/askuserquestion-go v0.1.1/go.mod h1:LqnDSIlCoJN53EjjWOKFOljRtHgCM1l1V47HMFeiJrk=
+github.com/dreamware-nz/askuserquestion-go v0.1.2 h1:J8E1z58PPEPVVFuLwMxngAZrpGGvQUsMKqKmKKfxh+o=
+github.com/dreamware-nz/askuserquestion-go v0.1.2/go.mod h1:LqnDSIlCoJN53EjjWOKFOljRtHgCM1l1V47HMFeiJrk=
 github.com/go-json-experiment/json v0.0.0-20260430182902-b6187a392ed4 h1:2WmHkJINIjgXXYDGik8d3oJvFA3DAwPy00csDJ3vo+o=
 github.com/go-json-experiment/json v0.0.0-20260430182902-b6187a392ed4/go.mod h1:tphK2c80bpPhMOI4v6bIc2xWywPfbqi1Z06+RcrMkDg=
 github.com/go-viper/mapstructure/v2 v2.5.0 h1:vM5IJoUAy3d7zRSVtIwQgBj7BiWtMPfmPEgAXnvj1Ro=

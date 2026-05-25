@@ -3,7 +3,7 @@ module github.com/dreamware-nz/askuserquestion-mcp
 go 1.26.3
 
 require (
-	github.com/dreamware-nz/askuserquestion-go v0.1.1
+	github.com/dreamware-nz/askuserquestion-go v0.1.2
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 )
 

@@ -4,6 +4,19 @@ All notable changes to this project will be documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.2 - 2026-05-26
+
+### Added
+
+- Optional `context` field on the `AskUserQuestion` request, plumbed
+  through to the browser picker. When the agent supplies it, the HTML
+  form renders it as a subtle muted banner above the questions so the
+  user can see what work the questions belong to (project name, repo
+  path, current task, whatever the agent finds useful). Opaque to the
+  server -- not validated, never appears in the canonical answer
+  string. Bumps the schema dependency to
+  [`askuserquestion-go v0.1.2`](https://github.com/dreamware-nz/askuserquestion-go/releases/tag/v0.1.2).
+
 ## v0.1.0 - 2026-05-19
 
 ### Added

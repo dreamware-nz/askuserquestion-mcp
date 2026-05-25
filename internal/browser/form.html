@@ -43,6 +43,16 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+  .ctx {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 0.75rem;
+    border-left: 2px solid var(--border);
+    background: transparent;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    word-break: break-word;
+  }
   .q {
     background: var(--card);
     border: 1px solid var(--border);
@@ -112,6 +122,7 @@
 <body>
 <main>
   <h1>Agent is asking</h1>
+  {{if .Context}}<div class="ctx">{{.Context}}</div>{{end}}
   <form id="auq">
     {{range $qi, $q := .Questions}}
     <section class="q" data-qi="{{$qi}}" data-multi="{{$q.MultiSelect}}">

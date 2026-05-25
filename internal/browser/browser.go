@@ -195,11 +195,18 @@ const thanksHTML = `<!doctype html>
 body { font-family: system-ui, -apple-system, sans-serif; max-width: 36rem;
   margin: 4rem auto; padding: 0 1.5rem; color: #222; line-height: 1.5; }
 h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-p  { color: #555; }
+p  { color: #555; margin-bottom: 1rem; }
+button {
+  font: inherit; padding: 0.5rem 1rem; border: 1px solid #ccc;
+  border-radius: 6px; background: #f6f6f6; color: #222; cursor: pointer;
+}
+button:hover { background: #ececec; }
 </style>
 <h1>Thanks — answer recorded.</h1>
 <p id="msg">Closing this tab…</p>
+<button id="closeBtn" type="button">Close tab</button>
 <script>
+document.getElementById("closeBtn").onclick = function () { window.close(); };
 setTimeout(function () {
   window.close();
   setTimeout(function () {
